@@ -49,50 +49,20 @@ def run_frontend():
 
 
 def main():
-    """Main application runner"""
+    """Main application runner - runs both backend and frontend by default"""
     print("🌟 TravelMate Application Runner")
-    print("=" * 40)
-    print("1. Run Backend Only")
-    print("2. Run Frontend Only") 
-    print("3. Run Both (Backend + Frontend)")
-    print("4. Exit")
-    print("=" * 40)
-    
-    while True:
-        try:
-            choice = input("\nEnter your choice (1-4): ").strip()
-            
-            if choice == '1':
-                run_backend()
-                break
-            elif choice == '2':
-                run_frontend()
-                break
-            elif choice == '3':
-                print("\n🚀 Starting both backend and frontend...")
-                print("Backend will start first, then frontend in 3 seconds...")
-                
-                # Start backend in a separate thread
-                backend_thread = threading.Thread(target=run_backend, daemon=True)
-                backend_thread.start()
-                
-                # Wait a bit for backend to start
-                time.sleep(3)
-                
-                # Start frontend
-                run_frontend()
-                break
-            elif choice == '4':
-                print("👋 Goodbye!")
-                sys.exit(0)
-            else:
-                print("❌ Invalid choice. Please enter 1, 2, 3, or 4.")
-                
-        except KeyboardInterrupt:
-            print("\n👋 Goodbye!")
-            sys.exit(0)
-        except Exception as e:
-            print(f"❌ Error: {e}")
+    print("🚀 Starting both backend and frontend...")
+    print("Backend will start first, then frontend in 3 seconds...")
+
+    # Start backend in a separate thread
+    backend_thread = threading.Thread(target=run_backend, daemon=True)
+    backend_thread.start()
+
+    # Wait a bit for backend to start
+    time.sleep(3)
+
+    # Start frontend
+    run_frontend()
 
 
 if __name__ == '__main__':

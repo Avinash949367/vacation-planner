@@ -13,6 +13,8 @@ from kivy.metrics import dp
 from kivy.clock import Clock
 from kivy.uix.image import Image as KivyImage
 from kivy.core.image import Image as CoreImage
+from kivy.uix.widget import Widget
+from kivy.uix.filechooser import FileChooserIconView
 import requests
 import base64
 import io
@@ -46,7 +48,7 @@ class ProfileScreen(MDScreen):
         # Main layout
         main_layout = MDBoxLayout(
             orientation='vertical',
-            spacing=0
+            spacing=dp(20)
         )
         
         # Top app bar
@@ -66,17 +68,25 @@ class ProfileScreen(MDScreen):
         self.content_container = MDBoxLayout(
             orientation='vertical',
             spacing=dp(20),
-            padding=[dp(20), dp(20), dp(20), dp(20)],
+            padding=[dp(30), dp(30), dp(30), dp(30)],
             size_hint_y=None
         )
         self.content_container.bind(minimum_height=self.content_container.setter('height'))
         
         # Profile picture section
         self.add_profile_picture_section()
-        
+
+        # Spacer
+        spacer1 = Widget(size_hint_y=None, height=dp(30))
+        self.content_container.add_widget(spacer1)
+
         # User info section
         self.add_user_info_section()
-        
+
+        # Spacer
+        spacer2 = Widget(size_hint_y=None, height=dp(30))
+        self.content_container.add_widget(spacer2)
+
         # Password section
         self.add_password_section()
         
@@ -95,23 +105,24 @@ class ProfileScreen(MDScreen):
         # Profile picture card
         pic_card = MDCard(
             size_hint_y=None,
-            height=dp(200),
+            height=dp(220),
             elevation=2,
             radius=[12],
-            padding=[dp(16), dp(16), dp(16), dp(16)]
+            padding=[dp(20), dp(20), dp(20), dp(20)]
         )
         
         pic_content = MDBoxLayout(
             orientation='vertical',
-            spacing=dp(16)
+            spacing=dp(20)
         )
         
         # Title
         title = MDLabel(
             text="Profile Picture",
             theme_text_color="Primary",
-            font_style="H6",
-            halign="center"
+            font_style="H5",
+            halign="center",
+            bold=True
         )
         pic_content.add_widget(title)
         
@@ -147,7 +158,6 @@ class ProfileScreen(MDScreen):
         # Upload button
         upload_btn = MDRaisedButton(
             text="Upload Photo",
-            icon="camera",
             size_hint_x=None,
             width=dp(120),
             on_release=self.upload_profile_picture
@@ -165,22 +175,24 @@ class ProfileScreen(MDScreen):
         # User info card
         info_card = MDCard(
             size_hint_y=None,
-            height=dp(200),
+            height=dp(220),
             elevation=2,
             radius=[12],
-            padding=[dp(16), dp(16), dp(16), dp(16)]
+            padding=[dp(20), dp(20), dp(20), dp(20)]
         )
         
         info_content = MDBoxLayout(
             orientation='vertical',
-            spacing=dp(16)
+            spacing=dp(20)
         )
         
         # Title
         title = MDLabel(
             text="Personal Information",
             theme_text_color="Primary",
-            font_style="H6"
+            font_style="H5",
+            halign="center",
+            bold=True
         )
         info_content.add_widget(title)
         
@@ -237,7 +249,6 @@ class ProfileScreen(MDScreen):
         # Save button
         save_btn = MDRaisedButton(
             text="Save Changes",
-            icon="content-save",
             size_hint_y=None,
             height=dp(48),
             on_release=self.save_user_info
@@ -254,22 +265,24 @@ class ProfileScreen(MDScreen):
         # Password card
         pwd_card = MDCard(
             size_hint_y=None,
-            height=dp(250),
+            height=dp(280),
             elevation=2,
             radius=[12],
-            padding=[dp(16), dp(16), dp(16), dp(16)]
+            padding=[dp(20), dp(20), dp(20), dp(20)]
         )
         
         pwd_content = MDBoxLayout(
             orientation='vertical',
-            spacing=dp(16)
+            spacing=dp(20)
         )
         
         # Title
         title = MDLabel(
             text="Change Password",
             theme_text_color="Primary",
-            font_style="H6"
+            font_style="H5",
+            halign="center",
+            bold=True
         )
         pwd_content.add_widget(title)
         
@@ -351,7 +364,6 @@ class ProfileScreen(MDScreen):
         # Change password button
         change_pwd_btn = MDRaisedButton(
             text="Change Password",
-            icon="lock-reset",
             size_hint_y=None,
             height=dp(48),
             on_release=self.change_password
@@ -407,7 +419,7 @@ class ProfileScreen(MDScreen):
     def upload_profile_picture(self, instance):
         """Upload profile picture"""
         app = MDApp.get_running_app()
-        
+
         # Create file picker dialog
         content = MDBoxLayout(
             orientation='vertical',
@@ -415,35 +427,26 @@ class ProfileScreen(MDScreen):
             padding=[dp(16), dp(16), dp(16), dp(16)],
             size_hint_y=None
         )
-        
+
         # Title
         title = MDLabel(
-            text="Upload Profile Picture",
+            text="Select Profile Picture",
             theme_text_color="Primary",
             font_style="H6",
             halign="center"
         )
         content.add_widget(title)
-        
-        # Instructions
-        instructions = MDLabel(
-            text="Enter image URL to upload to Cloudinary",
-            theme_text_color="Secondary",
-            font_style="Body2",
-            halign="center"
+
+        # File chooser
+        self.filechooser = FileChooserIconView(
+            size_hint_y=None,
+            height=dp(300),
+            filters=['*.png', '*.jpg', '*.jpeg', '*.gif', '*.bmp']
         )
-        content.add_widget(instructions)
-        
-        # File input
-        file_input = MDTextField(
-            hint_text="Enter image URL",
-            mode="rectangle",
-            multiline=False
-        )
-        content.add_widget(file_input)
-        
-        content.height = dp(150)
-        
+        content.add_widget(self.filechooser)
+
+        content.height = dp(350)
+
         # Create dialog
         dialog = MDDialog(
             title="",
@@ -456,50 +459,52 @@ class ProfileScreen(MDScreen):
                 ),
                 MDRaisedButton(
                     text="Upload",
-                    on_release=lambda x: self.process_image_upload(file_input.text, dialog)
+                    on_release=lambda x: self.process_file_upload(dialog)
                 )
             ]
         )
         dialog.open()
     
-    def process_image_upload(self, image_url, dialog):
-        """Process the image upload to Cloudinary"""
+    def process_file_upload(self, dialog):
+        """Process the file upload to Cloudinary"""
         app = MDApp.get_running_app()
-        
-        if not image_url.strip():
-            app.show_error_snackbar("Please enter an image URL")
+
+        if not self.filechooser.selection:
+            app.show_error_snackbar("Please select an image file")
             return
-        
+
+        file_path = self.filechooser.selection[0]
+
         try:
             # Upload to Cloudinary
-            print(f"Uploading image to Cloudinary: {image_url}")
-            
+            print(f"Uploading image to Cloudinary: {file_path}")
+
             # Upload image to Cloudinary
             result = cloudinary.uploader.upload(
-                image_url,
+                file_path,
                 folder="profile_pictures",
                 public_id=f"user_{app.current_user.get('id', 'unknown')}",
                 overwrite=True
             )
-            
+
             # Get the secure URL from Cloudinary
             profile_pic_url = result['secure_url']
             print(f"Upload successful: {profile_pic_url}")
-            
+
             # Update the profile icon
             self.profile_icon.icon = "account-check"
             self.profile_icon.theme_icon_color = "Primary"
-            
+
             # Update user data
             if self.current_user:
                 self.current_user['profile_picture'] = profile_pic_url
-            
+
             # Update profile picture in database via API
             self.update_profile_picture_in_db(profile_pic_url)
-            
+
             app.show_success_snackbar("Profile picture updated successfully!")
             dialog.dismiss()
-            
+
         except Exception as e:
             print(f"Cloudinary upload error: {e}")
             app.show_error_snackbar(f"Failed to upload image: {str(e)}")

@@ -154,7 +154,6 @@ class JoinTripScreen(MDScreen):
             text="Scan QR Code",
             size_hint_y=None,
             height=dp(48),
-            icon="qrcode-scan",
             on_release=self.scan_qr_code
         )
         qr_content.add_widget(scan_btn)

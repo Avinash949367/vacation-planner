@@ -4,7 +4,7 @@ from kivy.storage.jsonstore import JsonStore
 
 class APIClient:
     def __init__(self):
-        self.base_url = "http://localhost:8000"  # Change this to your backend URL
+        self.base_url = "http://localhost:8001"  # Change this to your backend URL
         self.store = JsonStore('user_data.json')
     
     def get_headers(self):

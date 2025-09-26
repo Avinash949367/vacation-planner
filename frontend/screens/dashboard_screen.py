@@ -4,13 +4,13 @@ from kivymd.uix.gridlayout import MDGridLayout
 from kivymd.uix.card import MDCard
 from kivymd.uix.label import MDLabel
 from kivymd.uix.button import MDIconButton
-from kivymd.uix.button import MDFloatingActionButton
+from kivy.uix.button import Button as MDFloatingActionButton
 from kivymd.uix.toolbar import MDTopAppBar
 from kivymd.app import MDApp
 from kivymd.uix.scrollview import MDScrollView
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.menu import MDDropdownMenu
-from kivy.uix.button import Button as MDRaisedButton, Button as MDFlatButton
+from kivymd.uix.button import MDRaisedButton, MDFlatButton
 from kivymd.uix.button import MDFillRoundFlatIconButton
 from kivy.clock import Clock
 from kivy.animation import Animation

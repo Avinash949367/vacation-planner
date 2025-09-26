@@ -206,7 +206,6 @@ class TripDetailScreen(MDScreen):
         # Key option
         key_btn = MDRaisedButton(
             text="Share Trip Key",
-            icon="key",
             size_hint_y=None,
             height=dp(48),
             on_release=lambda x: self.share_trip_key()
@@ -216,7 +215,6 @@ class TripDetailScreen(MDScreen):
         # QR option
         qr_btn = MDRaisedButton(
             text="Share QR Code",
-            icon="qrcode",
             size_hint_y=None,
             height=dp(48),
             on_release=lambda x: self.share_trip_qr()

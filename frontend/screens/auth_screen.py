@@ -2,7 +2,7 @@ from kivymd.uix.screen import MDScreen
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.textfield import MDTextField
 from kivy.uix.button import Button as MDRaisedButton, Button as MDFlatButton
-from kivymd.uix.button import MDIconButton
+from kivymd.uix.button import MDIconButton, MDTextButton
 from kivymd.uix.label import MDLabel
 from kivymd.uix.toolbar import MDTopAppBar
 from kivymd.uix.dialog import MDDialog

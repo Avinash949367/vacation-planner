@@ -2,14 +2,15 @@ from kivymd.uix.screen import MDScreen
 from kivymd.uix.label import MDLabel
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.toolbar import MDTopAppBar
-from kivy.uix.button import Button as MDRaisedButton, Button as MDFlatButton
-from kivymd.uix.button import MDIconButton, MDFloatingActionButton
+from kivymd.uix.button import MDFlatButton, MDRaisedButton, MDIconButton
+from kivy.uix.button import Button as MDFloatingActionButton
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.card import MDCard
 from kivymd.uix.scrollview import MDScrollView
 from kivymd.app import MDApp
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.spinner import Spinner
 from kivy.metrics import dp
 from kivy.clock import Clock
 from datetime import datetime, timedelta
@@ -84,14 +85,6 @@ class CalendarScreen(MDScreen):
         main_layout.add_widget(self.calendar_container)
 
         self.add_widget(main_layout)
-
-        # Add floating action button for creating new trips
-        self.fab = MDFloatingActionButton(
-            icon="plus",
-            pos_hint={"right": 0.95, "bottom": 0.05},
-            on_release=self.create_new_trip
-        )
-        self.add_widget(self.fab)
 
         # Load trips and populate calendar
         Clock.schedule_once(lambda dt: self.load_trips(), 0.1)
@@ -241,12 +234,22 @@ class CalendarScreen(MDScreen):
 
     def get_trips_on_date(self, date_str):
         """Get trips that occur on a specific date"""
+        from datetime import datetime
         trips_on_date = []
-        for trip in self.trips:
-            start_date = trip.get('start_date', '')[:10]
-            end_date = trip.get('end_date', '')[:10]
-            if start_date <= date_str <= end_date:
-                trips_on_date.append(trip)
+        try:
+            date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+            for trip in self.trips:
+                start_str = trip.get('start_date', '')[:10]
+                end_str = trip.get('end_date', '')[:10]
+                try:
+                    start_date = datetime.strptime(start_str, '%Y-%m-%d').date()
+                    end_date = datetime.strptime(end_str, '%Y-%m-%d').date()
+                    if start_date <= date_obj <= end_date:
+                        trips_on_date.append(trip)
+                except ValueError:
+                    pass
+        except ValueError:
+            pass
         return trips_on_date
 
     def show_trips_for_date(self, date_str):
@@ -388,11 +391,11 @@ class CalendarScreen(MDScreen):
         """Show month and year picker dialog"""
         content = MDBoxLayout(
             orientation='vertical',
-            spacing=dp(16),
-            padding=[dp(16), dp(16), dp(16), dp(16)],
+            spacing=dp(20),
+            padding=[dp(20), dp(20), dp(20), dp(20)],
             size_hint_y=None
         )
-        
+
         # Title
         title = MDLabel(
             text="Select Month & Year",
@@ -401,7 +404,7 @@ class CalendarScreen(MDScreen):
             halign="center"
         )
         content.add_widget(title)
-        
+
         # Month selection
         month_layout = MDBoxLayout(
             orientation='horizontal',
@@ -409,52 +412,23 @@ class CalendarScreen(MDScreen):
             height=dp(40),
             spacing=dp(10)
         )
-        
+
         month_label = MDLabel(
             text="Month:",
             theme_text_color="Primary",
             size_hint_x=0.3
         )
         month_layout.add_widget(month_label)
-        
-        # Month dropdown
+
+        # Month spinner
         month_names = ['January', 'February', 'March', 'April', 'May', 'June',
                       'July', 'August', 'September', 'October', 'November', 'December']
-        
-        self.month_spinner = MDBoxLayout(
-            orientation='horizontal',
-            size_hint_x=0.7,
-            spacing=dp(5)
-        )
-        
-        # Previous month button
-        prev_month_btn = MDIconButton(
-            icon="chevron-left",
-            size_hint_x=None,
-            width=dp(40),
-            on_release=lambda x: self.change_month(-1)
-        )
-        self.month_spinner.add_widget(prev_month_btn)
-        
-        # Current month display
-        self.current_month_label = MDLabel(
+
+        self.month_spinner = Spinner(
             text=month_names[self.current_date.month - 1],
-            theme_text_color="Primary",
-            font_style="Body1",
-            halign="center",
-            size_hint_x=1
+            values=month_names,
+            size_hint_x=0.7
         )
-        self.month_spinner.add_widget(self.current_month_label)
-        
-        # Next month button
-        next_month_btn = MDIconButton(
-            icon="chevron-right",
-            size_hint_x=None,
-            width=dp(40),
-            on_release=lambda x: self.change_month(1)
-        )
-        self.month_spinner.add_widget(next_month_btn)
-        
         month_layout.add_widget(self.month_spinner)
         content.add_widget(month_layout)
         
@@ -485,14 +459,16 @@ class CalendarScreen(MDScreen):
         year_layout.add_widget(self.year_field)
         
         content.add_widget(year_layout)
-        
-        content.height = dp(200)
+
+        content.height = dp(250)
         
         # Create dialog
         self.picker_dialog = MDDialog(
             title="",
             type="custom",
             content_cls=content,
+            size_hint=(None, None),
+            size=(dp(350), dp(450)),
             buttons=[
                 MDFlatButton(
                     text="Cancel",
@@ -506,26 +482,15 @@ class CalendarScreen(MDScreen):
         )
         self.picker_dialog.open()
 
-    def change_month(self, direction):
-        """Change month in the picker"""
-        month_names = ['January', 'February', 'March', 'April', 'May', 'June',
-                      'July', 'August', 'September', 'October', 'November', 'December']
-        
-        new_month = self.current_date.month + direction
-        if new_month < 1:
-            new_month = 12
-        elif new_month > 12:
-            new_month = 1
-        
-        self.current_date = self.current_date.replace(month=new_month)
-        self.current_month_label.text = month_names[new_month - 1]
-
     def apply_date_selection(self, instance):
         """Apply the selected month and year"""
         try:
             year = int(self.year_field.text)
+            month_names = ['January', 'February', 'March', 'April', 'May', 'June',
+                          'July', 'August', 'September', 'October', 'November', 'December']
+            month = month_names.index(self.month_spinner.text) + 1
             if 2020 <= year <= 2030:  # Reasonable year range
-                self.current_date = self.current_date.replace(year=year)
+                self.current_date = self.current_date.replace(year=year, month=month)
                 self.picker_dialog.dismiss()
                 self.update_calendar()
             else:
@@ -534,6 +499,8 @@ class CalendarScreen(MDScreen):
         except ValueError:
             app = MDApp.get_running_app()
             app.show_error_snackbar("Please enter a valid year")
+
+
 
     def refresh_calendar(self):
         """Refresh the calendar with latest trip data"""

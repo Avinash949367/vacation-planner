@@ -260,16 +260,14 @@ class TripSharingScreen(MDScreen):
         message_btn = MDRaisedButton(
             text="Share via Message",
             size_hint_x=0.5,
-            icon="message",
             on_release=self.share_via_message
         )
         buttons_layout.add_widget(message_btn)
-        
+
         # Share via email
         email_btn = MDRaisedButton(
             text="Share via Email",
             size_hint_x=0.5,
-            icon="email",
             on_release=self.share_via_email
         )
         buttons_layout.add_widget(email_btn)

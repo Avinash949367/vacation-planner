@@ -36,6 +36,10 @@ class Settings(BaseSettings):
     smtp_password: str = ""
     from_email: str = "noreply@travelmate.com"
 
+    # Server settings
+    host: str = "0.0.0.0"
+    port: int = 8001
+
     class Config:
         env_file = ".env"
 
